@@ -23,24 +23,23 @@ iptables -N udp
 iptables -N icmp
 #Drop All packets to local computer
 iptables -A INPUT -d LOCALIP -j DROP #verified
-iptables -A INPUT -i $WAN -p tcp -m multiport --ports 32768:32775,137:139 -j DROP #verified
+#Drop all sin fin packets
+iptables -A INPUT -p tcp --tcp-flags SYN,FIN -j DROP
 
 #jump all traffic to the appropriate chain
 iptables -p tcp -j tcp
 iptables -p udp -j udp
 iptables -p icmp -j icmp
 
-#TODO block all external tcp trafic 111:515
-
 #TODO block wrong way syns
-#TODO drop SYN/FIN packets
 #TODO accept fragments
 #TODO accept all packets that belong to an existing connection on allowed ports
 #TODO set minimum delay for FTP and SSH
 #TODO set Maximim Throughput for ftp
 #TODO only allow new and established traffic to go through firewall 'stateful'
 
-
+ptables -A tcp -i $WAN -p tcp -m multiport --ports 32768:32775,111:515 -j DROP
+iptables -A udp -i $WAN -p udp -m multiport --ports 32768:32775,137:139 -j DROP
 #block all telnet traffic
 iptables -p tcp --sport telnet -j DROP
 iptables -p tcp --dport telnet -j DROP
