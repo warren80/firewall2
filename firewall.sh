@@ -23,7 +23,7 @@ iptables -N udp
 iptables -N icmp
 #Drop All packets to local computer
 iptables -A INPUT -d LOCALIP -j DROP #verified
-#TODO block all external from ports 32768 - 32775 137:139 regardless of protocol
+iptables -A INPUT -i $WAN -p tcp -m multiport --ports 32768:32775,137:139 -j DROP #verified
 
 #jump all traffic to the appropriate chain
 iptables -p tcp -j tcp
