@@ -47,7 +47,8 @@ iptables -p icmp -j icmp
 #TODO only allow new and established traffic to go through firewall 'stateful'
 
 # set minimum delaf for FTP and SSH
-iptables -t mangle -A INPUT -d -p tcp --sports ssh,ftp -j TOS --set-tos 0x10
+iptables -t mangle -A INPUT -I $WAN -d 192.168.180.0/24 -p tcp -m multiport /
+	--sports ssh,ftp -j TOS --set-tos 0x10
 
 # set Maximum Throughput for ftp
 iptables -t mangle -A INPUT -p tcp -m multiport --dports ssh,ftp -j TOS --set-tos 0x08
