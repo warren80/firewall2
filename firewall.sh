@@ -67,7 +67,15 @@ iptables -p icmp -j icmp
 #TODO only allow new and established traffic to go through firewall 'stateful'
 iptables -A F
 
-ptables -A tcp -i $WAN -p tcp -m multiport --ports 32768:32775,111:515 -j DROP
+# set minimum delaf for FTP and SSH
+iptables -t mangle -A INPUT -I $WAN -d 192.168.180.0/24 -p tcp -m multiport /
+	--sports ssh,ftp -j TOS --set-tos 0x10
+
+# set Maximum Throughput for ftp
+iptables -t mangle -A INPUT -p tcp -m multiport --dports ssh,ftp -j TOS --set-tos 0x08
+
+
+iptables -A tcp -i $WAN -p tcp -m multiport --ports 32768:32775,111:515 -j DROP
 iptables -A udp -i $WAN -p udp -m multiport --ports 32768:32775,137:139 -j DROP
 #allow tcp and udp services
 iptables -A INPUT -p tcp -m multiport --ports TCPSERVICES -j FORWARD #needs to forward to client
