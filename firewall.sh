@@ -85,9 +85,12 @@ iptables -A
 iptables -p tcp --sport telnet -j DROP
 iptables -p tcp --dport telnet -j DROP
 #ICMP Rules
-iptables -A INPUT -p icmp --icmp-type 8 -s 0/0 -d $EXTERNALIP /
-	-m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-iptables -A OUTPUT -p icmp --icmp-type 0 -s $EXTERNALIP -d 0/0 /
-	-m state --state ESTABLISHED,RELATED -j ACCEPT
+for i in ${ICMP[@]}
+do
+	iptables -A INPUT -p icmp --icmp-type ${ICMP[$i]} -s 0/0 -d $EXTERNALIP /
+		-m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+	iptables -A OUTPUT -p icmp --icmp-type ${ICMP[$i]} -s $EXTERNALIP -d 0/0 /
+		-m state --state ESTABLISHED,RELATED -j ACCEPT
+done
 
 
