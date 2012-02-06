@@ -5,8 +5,8 @@ LAN=em1
 LOCALIP=192.168.0.243
 LOCALNETWORK='192.168.0.0/24'  #is this format valid?
 #allowed tcp services on following ports #,#,#,#,...  example 21,22,23
-TCPSERVICES = 21,22,53
-UDPSERVICES = 21
+TCPSERVICES = "ssh, tcp, 111, 137:139, 515, 32768:32775"
+UDPSERVICES = "ssh, tcp, 137:139, 32768:32775"
 ICMP = 0
 #ICMP ?
 #TODO something to allow icmp services
@@ -47,15 +47,15 @@ iptables -p icmp -j icmp
 #TODO only allow new and established traffic to go through firewall 'stateful'
 
 # set minimum delaf for FTP and SSH
-iptables -t mangle -A INPUT -I $WAN -d 192.168.180.0/24 -p tcp -m multiport /
-	--sports ssh,ftp -j TOS --set-tos 0x10
+iptables -t mangle -A FORWARD -I $WAN -d 192.168.180.0/24 -p tcp -m multiport /
+	--sports ssh,ftp -j tcp --set-tos 0x10
 
 # set Maximum Throughput for ftp
-iptables -t mangle -A INPUT -p tcp -m multiport --dports ssh,ftp -j TOS --set-tos 0x08
+iptables -t mangle -A FORWARD -p tcp -m multiport --dports ssh,ftp -j tcp --set-tos 0x08
 
 
-iptables -A tcp -i $WAN -p tcp -m multiport --ports 32768:32775,111:515 -j DROP
-iptables -A udp -i $WAN -p udp -m multiport --ports 32768:32775,137:139 -j DROP
+iptables -A tcp -i $WAN -p tcp -m multiport --ports $TCPSERVICES -j DROP
+iptables -A udp -i $WAN -p udp -m multiport --ports $UDPSERVICES -j DROP
 #allow tcp and udp services
 
 #block all telnet traffic
