@@ -26,6 +26,7 @@ UDPSERVICES=21,22
 q
 #Allow ICMP protocols 0 Echo reply 8 Echo request etc
 ICMP = 0 8
+ICMP = 0
 #TODO something to allow icmp services
 
 
@@ -68,15 +69,15 @@ iptables -p icmp -j icmp
 iptables -A F
 
 # set minimum delaf for FTP and SSH
-iptables -t mangle -A INPUT -I $WAN -d 192.168.180.0/24 -p tcp -m multiport /
-	--sports ssh,ftp -j TOS --set-tos 0x10
+iptables -t mangle -A FORWARD -I $WAN -d 192.168.180.0/24 -p tcp -m multiport /
+	--sports ssh,ftp -j tcp --set-tos 0x10
 
 # set Maximum Throughput for ftp
-iptables -t mangle -A INPUT -p tcp -m multiport --dports ssh,ftp -j TOS --set-tos 0x08
+iptables -t mangle -A FORWARD -p tcp -m multiport --dports ssh,ftp -j tcp --set-tos 0x08
 
 
-iptables -A tcp -i $WAN -p tcp -m multiport --ports 32768:32775,111:515 -j DROP
-iptables -A udp -i $WAN -p udp -m multiport --ports 32768:32775,137:139 -j DROP
+iptables -A tcp -i $WAN -p tcp -m multiport --ports $TCPSERVICES -j DROP
+iptables -A udp -i $WAN -p udp -m multiport --ports $UDPSERVICES -j DROP
 #allow tcp and udp services
 iptables -A INPUT -p tcp -m multiport --ports TCPSERVICES -j FORWARD #needs to forward to client
 iptables -A 
