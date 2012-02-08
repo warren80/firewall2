@@ -7,7 +7,7 @@ WAN=eth0
 LAN=em1
 
 #address from internal Network
-INTERNALIP=192.168.180.1
+INTERNALIP=192.168.180.11
 
 #address from external Networks
 EXTERNALIP=192.168.0.11
@@ -83,9 +83,9 @@ iptables -A POSTROUTING -t nat -o em1 -j MASQUERADE
 #order of operation here may be bunk with forwarding then jumping after
 
 #jump all traffic to the appropriate chain #currently no input/outout and what not ie these can't work
-iptables -p tcp -j tcp
-iptables -p udp -j udp
-iptables -p icmp -j icmp
+#iptables -p tcp -j tcp
+#iptables -p udp -j udp
+#iptables -p icmp -j icmp
 
 #TODO block wrong way syns
 #TODO accept fragments
@@ -103,17 +103,17 @@ iptables -p icmp -j icmp
 
 
 #block all telnet traffic
-iptables -p tcp --sport telnet -j DROP
-iptables -p tcp --dport telnet -j DROP
+#iptables -p tcp --sport telnet -j DROP
+#iptables -p tcp --dport telnet -j DROP
 #ICMP Rules
-for i in ${ICMP[@]}
-do
-	iptables -A INPUT -p icmp --icmp-type ${ICMP[$i]} \ 
-		-s 0/0 -d $EXTERNALIP \ 
-		-m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-	iptables -A OUTPUT -p icmp --icmp-type ${ICMP[$i]} \
-		-s $EXTERNALIP -d 0/0 -m state \
-		--state ESTABLISHED,RELATED -j ACCEPT
-done
+#for i in ${ICMP[@]}
+#do
+#	iptables -A INPUT -p icmp --icmp-type ${ICMP[$i]} \ 
+#		-s 0/0 -d $EXTERNALIP \ 
+#		-m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+#	iptables -A OUTPUT -p icmp --icmp-type ${ICMP[$i]} \
+#		-s $EXTERNALIP -d 0/0 -m state \
+#		--state ESTABLISHED,RELATED -j ACCEPT
+#done
 
 
