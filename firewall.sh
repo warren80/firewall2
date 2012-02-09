@@ -61,7 +61,7 @@ iptables -A FORWARD -p tcp -i $WAN --tcp-flags SYN FIN -j DROP
 #sets forwarding data
 echo Setting Up forwarding between nics
 
-iptables -A FORWARD -i $WAN -o $LAN -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+iptables -A FORWARD -i $WAN -o $LAN -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A FORWARD -p tcp -i $WAN -o $LAN -m multiport --dports $TCPSERVICES -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 iptables -A FORWARD -i $LAN -o $WAN -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
 iptables -A FORWARD -f -j ACCEPT
@@ -84,12 +84,9 @@ echo Setting maximum throughput
 # set Maximum Throughput for ftp
 iptables -t mangle -A FORWARD -i $WAN -p tcp --dport ftp -j TOS --set-tos 0x08
 
-#TODO ICMP
-
-#ICMP Rules
-#does not yet forward
-#for i in ${ICMP[@]}
-#do
-#	iptables -A INPUT -p icmp --icmp-type $i -s 0/0 -d $EXTERNALIP -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
-#	iptables -A OUTPUT -p icmp --icmp-type $i -s $EXTERNALIP -d 0/0 -m state --state ESTABLISHED,RELATED -j ACCEPT
-#done
+#ICMP Rules icmp post routing should be handled with catch all masquerade rule
+for i in ${ICMP[@]}
+do
+	echo Allowing following ICMP protocol $i 
+	iptables -t nat -A PREROUTING -p icmp -i $WAN --icmp-type $i -j DNAT --to $CLIENTIP
+done
